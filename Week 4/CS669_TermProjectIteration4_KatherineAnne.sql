@@ -1,0 +1,271 @@
+-- Prep Work
+-- Drop tables
+DROP TABLE IF EXISTS Advise CASCADE;
+DROP TABLE IF EXISTS ValidationData CASCADE;
+DROP TABLE IF EXISTS Create2 CASCADE;
+DROP TABLE IF EXISTS Depict CASCADE;
+DROP TABLE IF EXISTS "Alter" CASCADE;
+DROP TABLE IF EXISTS Depict2 CASCADE;
+DROP TABLE IF EXISTS "Create" CASCADE;
+DROP TABLE IF EXISTS Bar_Chart CASCADE;
+DROP TABLE IF EXISTS Histogram CASCADE;
+DROP TABLE IF EXISTS Scatterplot CASCADE;
+DROP TABLE IF EXISTS Line_Graph CASCADE;
+DROP TABLE IF EXISTS APN CASCADE;
+DROP TABLE IF EXISTS "Polygon" CASCADE;
+DROP TABLE IF EXISTS Purchase CASCADE;
+DROP TABLE IF EXISTS Valuation CASCADE;
+DROP TABLE IF EXISTS WorksWith CASCADE;
+DROP TABLE IF EXISTS Transfer CASCADE;
+DROP TABLE IF EXISTS "Map" CASCADE;
+DROP TABLE IF EXISTS Graph CASCADE;
+DROP TABLE IF EXISTS Grantee CASCADE;
+DROP TABLE IF EXISTS Grantor CASCADE;
+DROP TABLE IF EXISTS Contact_Status CASCADE;
+DROP TABLE IF EXISTS Cities CASCADE;
+DROP TABLE IF EXISTS "Transaction" CASCADE;
+DROP TABLE IF EXISTS Researcher CASCADE;
+DROP TABLE IF EXISTS LandConservationCompany CASCADE;
+
+-- Drop sequences
+DROP SEQUENCE IF EXISTS land_conservation_company_seq CASCADE;
+DROP SEQUENCE IF EXISTS advise_seq CASCADE;
+DROP SEQUENCE IF EXISTS researcher_seq CASCADE;
+DROP SEQUENCE IF EXISTS validation_data_seq CASCADE;
+DROP SEQUENCE IF EXISTS create2_seq CASCADE;
+DROP SEQUENCE IF EXISTS map_seq CASCADE;
+DROP SEQUENCE IF EXISTS depict_seq CASCADE;
+DROP SEQUENCE IF EXISTS contact_status_seq CASCADE;
+DROP SEQUENCE IF EXISTS alter_seq CASCADE;
+DROP SEQUENCE IF EXISTS depict2_seq CASCADE;
+DROP SEQUENCE IF EXISTS graph_seq CASCADE;
+DROP SEQUENCE IF EXISTS create_seq CASCADE;
+DROP SEQUENCE IF EXISTS purchase_seq CASCADE;
+DROP SEQUENCE IF EXISTS cities_seq CASCADE;
+DROP SEQUENCE IF EXISTS valuation_seq CASCADE;
+DROP SEQUENCE IF EXISTS grantee_seq CASCADE;
+DROP SEQUENCE IF EXISTS workswith_seq CASCADE;
+DROP SEQUENCE IF EXISTS grantor_seq CASCADE;
+DROP SEQUENCE IF EXISTS transfer_seq CASCADE;
+
+
+-- TABLES
+CREATE TABLE LandConservationCompany (
+    LandConservationCompanyID DECIMAL(12) PRIMARY KEY NOT NULL,
+    Company_Name VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE Researcher (
+    ResearcherID DECIMAL(12) PRIMARY KEY NOT NULL,
+    Researcher_first_name VARCHAR(64) NOT NULL,
+    Researcher_last_name VARCHAR(64),
+    Researcher_Type VARCHAR(25) NOT NULL
+);
+
+CREATE TABLE Contact_Status (
+    Contact_Status_ID DECIMAL(12) PRIMARY KEY NOT NULL,
+    Contact_Status DECIMAL(2,0) UNIQUE NOT NULL,
+    Responded BOOLEAN NOT NULL
+);
+
+CREATE TABLE Cities (
+    Cities_ID DECIMAL(12) PRIMARY KEY NOT NULL,
+    Closest_City VARCHAR(64) UNIQUE NOT NULL,
+    City_Center_x DECIMAL (10,10) NOT NULL,
+	City_Center_y DECIMAL (10,10) NOT NULL
+);
+
+CREATE TABLE "Transaction" (
+    ct_id DECIMAL(8) PRIMARY KEY NOT NULL UNIQUE,
+    Acreage DECIMAL(10,4),
+    Price_per_Acre DECIMAL(10,4),
+    "Date" DATE,
+    Protection_Type VARCHAR(50),
+    Public_Spending DECIMAL(10,2),
+    Contact_Status DECIMAL(2,0),
+    Center_of_Transaction_x DECIMAL(10,10) NOT NULL,
+	Center_of_Transaction_y DECIMAL(10,10) NOT NULL,
+    Distance_from_City DECIMAL(10,2) NOT NULL,
+    Closest_City VARCHAR(64) NOT NULL,
+	FOREIGN KEY (Contact_Status) REFERENCES Contact_Status(Contact_Status),
+	FOREIGN KEY (Closest_City) REFERENCES Cities(Closest_City)
+);
+
+CREATE TABLE "Map" (
+    MapID DECIMAL(12) PRIMARY KEY NOT NULL,
+    Projection VARCHAR(64) NOT NULL,
+    Map_Type VARCHAR(64) NOT NULL,
+    Color_Scheme VARCHAR(64) NOT NULL,
+    Lower_Bound DECIMAL(10,4) NOT NULL,
+    Upper_Bound DECIMAL(10,4) NOT NULL
+);
+
+CREATE TABLE Graph (
+    GraphID DECIMAL(12) PRIMARY KEY NOT NULL,
+    x_axis VARCHAR(50),
+    y_axis VARCHAR(50),
+    title VARCHAR(100),
+    Type_Flag VARCHAR(20) NOT NULL,
+    Lower_Bound DECIMAL(10,4) NOT NULL,
+    Upper_Bound DECIMAL(10,4) NOT NULL
+);
+
+CREATE TABLE Grantee (
+    GranteeID DECIMAL(12) PRIMARY KEY NOT NULL,
+    Grantee_First_Name VARCHAR(50),
+    Grantee_Last_Name VARCHAR(50)
+);
+
+CREATE TABLE Grantor (
+    GrantorID DECIMAL(12) PRIMARY KEY NOT NULL,
+    Grantor_First_Name VARCHAR(50),
+    Grantor_Last_Name VARCHAR(50)
+);
+
+CREATE TABLE Advise (
+    AdviseID DECIMAL(12) PRIMARY KEY NOT NULL,
+    LandConservationCompanyID DECIMAL(12),
+    ResearcherID DECIMAL(12),
+	FOREIGN KEY (LandConservationCompanyID) REFERENCES LandConservationCompany(LandConservationCompanyID),
+	FOREIGN KEY (ResearcherID) REFERENCES Researcher(ResearcherID)
+);
+
+CREATE TABLE ValidationData (
+    ValidationDataID DECIMAL(12) PRIMARY KEY NOT NULL,
+    ResearcherID DECIMAL(12) NOT NULL,
+    ct_id DECIMAL(8) NOT NULL,
+    Validate_Purchase_Price DECIMAL(10,2),
+    Validate_Acreage DECIMAL(10,4),
+    Validate_Date DATE,
+    Validate_Protection_Type VARCHAR(50),
+    Validate_Public_Spending DECIMAL(10,2),
+	FOREIGN KEY (ResearcherID) REFERENCES Researcher(ResearcherID),
+	FOREIGN KEY (ct_id) REFERENCES "Transaction"(ct_id)
+);
+
+CREATE TABLE Create2 (
+    Create2ID DECIMAL(12) PRIMARY KEY NOT NULL,
+    MapID DECIMAL(12) NOT NULL,
+    ResearcherID DECIMAL(12) NOT NULL,
+	FOREIGN KEY (MapID) REFERENCES "Map"(MapID),
+	FOREIGN KEY (ResearcherID) REFERENCES Researcher(ResearcherID)
+);
+
+CREATE TABLE Depict (
+    DepictID DECIMAL(12) PRIMARY KEY NOT NULL,
+    MapID DECIMAL(12) NOT NULL,
+    ct_id DECIMAL(8) NOT NULL,
+	FOREIGN KEY (MapID) REFERENCES "Map"(MapID),
+	FOREIGN KEY (ct_id) REFERENCES "Transaction"(ct_id)
+);
+
+CREATE TABLE "Alter" (
+    AlterID DECIMAL(12) PRIMARY KEY NOT NULL,
+    ct_id DECIMAL(8) NOT NULL,
+    ResearcherID DECIMAL(12) NOT NULL,
+	FOREIGN KEY (ct_id) REFERENCES "Transaction"(ct_id),
+	FOREIGN KEY (ResearcherID) REFERENCES Researcher(ResearcherID)
+);
+
+CREATE TABLE Depict2 (
+    Depict2ID DECIMAL(12) PRIMARY KEY NOT NULL,
+    GraphID DECIMAL(12) NOT NULL,
+    ct_id DECIMAL(8) NOT NULL,
+	FOREIGN KEY (GraphID) REFERENCES Graph(GraphID),
+	FOREIGN KEY (ct_id) REFERENCES "Transaction"(ct_id)
+);
+
+CREATE TABLE "Create" (
+    CreateID DECIMAL(12) NOT NULL PRIMARY KEY,
+    GraphID DECIMAL(12) NOT NULL,
+    ResearcherID DECIMAL(12) NOT NULL,
+	FOREIGN KEY (GraphID) REFERENCES Graph(GraphID),
+	FOREIGN KEY (ResearcherID) REFERENCES Researcher(ResearcherID)
+);
+
+CREATE TABLE Bar_Chart (
+    GraphID DECIMAL(12) NOT NULL PRIMARY KEY REFERENCES Graph
+);
+
+CREATE TABLE Histogram (
+    GraphID DECIMAL(12) NOT NULL PRIMARY KEY REFERENCES Graph
+);
+
+CREATE TABLE Scatterplot (
+    GraphID DECIMAL(12) NOT NULL PRIMARY KEY REFERENCES Graph
+);
+
+CREATE TABLE Line_Graph (
+    GraphID DECIMAL(12) NOT NULL PRIMARY KEY REFERENCES Graph
+);
+
+CREATE TABLE APN (
+    ct_id DECIMAL(8) NOT NULL PRIMARY KEY REFERENCES "Transaction"(ct_id),
+    APN VARCHAR(50)
+);
+
+CREATE TABLE "Polygon" (
+    ct_id DECIMAL(8) PRIMARY KEY REFERENCES "Transaction"(ct_id),
+    "polygon" VARCHAR(200) NOT NULL
+);
+
+CREATE TABLE Purchase (
+    PurchaseID DECIMAL(12) PRIMARY KEY NOT NULL,
+    GranteeID DECIMAL(12) NOT NULL,
+    ct_id DECIMAL(8) NOT NULL,
+    Purchase_Price DECIMAL(10,2),
+    Purchase_Date DATE,
+    Normalized_Purchase_Price DECIMAL(10,2),
+	FOREIGN KEY (GranteeID) REFERENCES Grantee(GranteeID),
+	FOREIGN KEY (ct_id) REFERENCES "Transaction"(ct_id)
+);
+
+CREATE TABLE Valuation (
+    Valuation_id DECIMAL(10) PRIMARY KEY NOT NULL,
+    ct_id DECIMAL(8) NOT NULL,
+    PurchaseID DECIMAL(12) NOT NULL,
+    Appraised_Value DECIMAL(10,2),
+    Percent_Difference_Cost DECIMAL(3,5),
+	FOREIGN KEY (ct_id) REFERENCES "Transaction"(ct_id),
+	FOREIGN KEY (PurchaseID) REFERENCES Purchase(PurchaseID)
+);
+
+CREATE TABLE WorksWith (
+    WorksWithID DECIMAL(12) PRIMARY KEY NOT NULL,
+    GrantorID DECIMAL(12) NOT NULL,
+    GranteeID DECIMAL(12) NOT NULL,
+	FOREIGN KEY (GrantorID) REFERENCES Grantor(GrantorID),
+	FOREIGN KEY (GranteeID) REFERENCES Grantee(GranteeID)
+);
+
+CREATE TABLE Transfer (
+    TransferID DECIMAL(12) PRIMARY KEY NOT NULL,
+    GrantorID DECIMAL(12) NOT NULL,
+    ct_id DECIMAL(8) NOT NULL,
+    Transfer_Date DATE,
+	FOREIGN KEY (GrantorID) REFERENCES Grantor(GrantorID),
+	FOREIGN KEY (ct_id) REFERENCES "Transaction"(ct_id)
+);
+
+--SEQUENCES
+--All tables that need them should have an associated sequence.
+CREATE SEQUENCE land_conservation_company_seq START WITH 1;
+CREATE SEQUENCE advise_seq START WITH 1;
+CREATE SEQUENCE researcher_seq START WITH 1;
+CREATE SEQUENCE validation_data_seq START WITH 1;
+CREATE SEQUENCE create2_seq START WITH 1;
+CREATE SEQUENCE map_seq START WITH 1;
+CREATE SEQUENCE depict_seq START WITH 1;
+CREATE SEQUENCE contact_status_seq START WITH 1;
+CREATE SEQUENCE alter_seq START WITH 1;
+CREATE SEQUENCE depict2_seq START WITH 1;
+CREATE SEQUENCE graph_seq START WITH 1;
+CREATE SEQUENCE create_seq START WITH 1;
+CREATE SEQUENCE purchase_seq START WITH 1;
+CREATE SEQUENCE cities_seq START WITH 1;
+CREATE SEQUENCE valuation_seq START WITH 1;
+CREATE SEQUENCE grantee_seq START WITH 1;
+CREATE SEQUENCE workswith_seq START WITH 1;
+CREATE SEQUENCE grantor_seq START WITH 1;
+CREATE SEQUENCE transfer_seq START WITH 1;
+
